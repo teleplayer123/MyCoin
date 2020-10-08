@@ -27,8 +27,7 @@ mine = Miner()
 class App(widgets.QMainWindow):
 
     def new_wallet(self):
-        msg = CreateNewWallet().new_wallet()
-        self.statusBar().showMessage(str(msg))
+        self.setCentralWidget(CreateNewWallet())
 
     def new_transaction(self):
         self.setCentralWidget(NewTransaction())
@@ -187,17 +186,42 @@ class CreateNewWallet(widgets.QWidget):
     
     def __init__(self):
         super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        main_layout = widgets.QVBoxLayout()
+        group_box = widgets.QGroupBox()
+        layout = widgets.QFormLayout()
+
+        self.wallet_name = widgets.QLineEdit(self)
+        self.password = widgets.QLineEdit(self)
+        self.password.setEchoMode(widgets.QLineEdit.EchoMode.Password)
+
+        self.button = widgets.QPushButton("Create Wallet")
+
+        layout.addRow(widgets.QLabel("Wallet Name: "), self.wallet_name)
+        layout.addRow(widgets.QLabel("Create Password: "), self.password)
+        layout.addRow(self.button)
+
+        group_box.setLayout(layout)
+        main_layout.addWidget(group_box)
+        self.setLayout(main_layout)
+
+        self.button.clicked.connect(self.new_wallet)
 
     def new_wallet(self):
-        wallet_name = self.get_input("Wallet name: ") 
-        password = self.get_input("Enter password: ")
+        wallet_name = self.wallet_name.text()
+        password = self.password.text()
         verify_pass = self.get_input("Verify password: ")
         wallet = Wallet(wallet_name)
         res = wallet.create_wallet(password, verify_pass)
-        return res
+        widgets.QMessageBox.information(self, "msg", str(res), widgets.QMessageBox.Ok)
+        self.wallet_name.clear
+        self.password.clear
+        return 
 
     def get_input(self, msg):
-        text, ok = widgets.QInputDialog.getText(self, "Get Text", msg)
+        text, ok = widgets.QInputDialog.getText(self, "Get Text", msg, widgets.QLineEdit.EchoMode.Password)
         if ok and text != "":
             return text
 
@@ -242,13 +266,14 @@ class NewTransaction(widgets.QWidget):
                 self.wallet_name_line.setText("")    
                 return
             else:
+                #todo: change to home page
                 self.recipient_line.setText("")
                 self.amount_line.setText("")
                 self.wallet_name_line.setText("") 
                 return
 
     def get_input(self, msg):
-        text, ok = widgets.QInputDialog.getText(self, "Get Text", msg)
+        text, ok = widgets.QInputDialog.getText(self, "Get Text", msg, widgets.QLineEdit.EchoMode.Password)
         if ok and text != "":
             return text
 
