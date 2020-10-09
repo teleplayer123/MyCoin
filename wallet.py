@@ -106,12 +106,15 @@ class Wallet(object):
     
     def __init__(self, wallet_name):
         self.wallet_name = wallet_name
-        self.username = config["user"]["username"]
         self.user = getpass.getuser()
         env = platform.system()
         if env == 'Linux':
-            self.filename = f"/home/{self.user}/{self.wallet_name}.json"
+            if not os.path.exists(f"/home/{self.user}/.mycoin"):
+                os.mkdir(f"/home/{self.user}/.mycoin")
+            self.filename = f"/home/{self.user}/.mycoin/{self.wallet_name}.json"
         elif env == 'Windows':
+            if not os.path.exists(f"C:/Users/{self.user}/.mycoin"):
+                os.mkdir(f"C:/Users/{self.user}/.mycoin")
             self.filename = f"C:/Users/{self.user}/{self.wallet_name}.json"
 
     @staticmethod

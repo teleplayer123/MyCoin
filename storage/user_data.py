@@ -7,7 +7,6 @@ import math
 from config import config
 
 FH = config["user"]["user_pool"]
-USER = config["user"]["username"]
 
 class PasswordPool(object):
 
@@ -45,8 +44,6 @@ class PasswordPool(object):
 
     def get_user_data(self, username=None):
         if username is None:
-            username = USER
-        if not username == USER and username is None:
             raise ValueError("error, no username")
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
