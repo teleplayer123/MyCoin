@@ -14,8 +14,14 @@ I recommend using a virtual environment. Run 'pip install -r requirements.txt --
 to install updated dependencies.
 
 In order for this to work, new certificates might need to be created with 
-'openssl req -x509 -newkey rsa:4096 -keyout server/client.key -out server/client.crt 
--days 365', and then enter the information being prompted. Run [run_proxy.py](run_proxy.py)
+
+    ~/MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt 
+    -days 365
+    
+    ~MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout client.key -out client.crt 
+    -days 365'
+    
+and then enter the information being prompted. Run [run_proxy.py](run_proxy.py)
 and [run_server.py](run_server.py) in seperate terminals or a multiplexer:
 
 ![runservers](images/startservers.png)
