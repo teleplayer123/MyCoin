@@ -13,7 +13,7 @@ is installed on your operating system. Install the dependencies in requirements.
 I recommend using a virtual environment. Run 'pip install -r requirements.txt --upgrade' 
 to install updated dependencies.
 
-In order for this to work, new certificates might need to be created with 
+In order for this to work, new certificates might need to be created with: 
 
     ~/MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt 
     -days 365
