@@ -215,9 +215,10 @@ class CreateNewWallet(widgets.QWidget):
         verify_pass = self.get_input("Verify password: ")
         wallet = Wallet(wallet_name)
         res = wallet.create_wallet(password, verify_pass)
-        widgets.QMessageBox.information(self, "msg", str(res), widgets.QMessageBox.Ok)
-        self.wallet_name.clear
-        self.password.clear
+        ok = widgets.QMessageBox.information(self, "msg", str(res), widgets.QMessageBox.Ok)
+        if ok == "Ok":
+            self.wallet_name.setText("")
+            self.password.setText("")
         return 
 
     def get_input(self, msg):

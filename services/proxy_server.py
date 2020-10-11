@@ -30,6 +30,7 @@ def check_status():
 @app.route("/connect", methods=["POST"])
 def connect():
     addr = (config["network"]["shost"], config["network"]["sport"])
+    caddr = request.host.split(":")[0]
     body = request.get_json()
     peer = body["host"]
     network = body["network"]
@@ -45,7 +46,7 @@ def connect():
                 return json.dumps({"success": True}), 201 
             else:
                 return json.dumps({"success": False}), 401
-        else:
+        if caddr != peer:
             sock.send("BADPEER:{}".format(peer).encode())
     except socket.error as err:
         logger.error(" Socket Error: {}".format(err))

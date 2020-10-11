@@ -83,9 +83,10 @@ class BaseServer(object):
         csock.send("{}".format(flag).encode())
 
     def remove_and_blacklist(self, peer):
-        self.peers.remove_peer(peer)
+        if peer in [i[0] for i in self.peers.get_all_peers()]:
+            self.peers.remove_peer(peer)
         self.blacklist.blacklist_host(peer)
-        logger.info(" {} removed from peers and blacklisted".format(peer))
+        logger.info(" {} has been blacklisted".format(peer))
         return True
 
     def connect_peer(self, peer):
