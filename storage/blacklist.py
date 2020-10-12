@@ -14,17 +14,18 @@ class BlackList(object):
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS blacklist ("
-                        "host CHAR(60) NOT NULL, "
+                        "host CHAR(60) NOT NULL,"
+                        "time CHAR(100) NOT NULL,"
                         "PRIMARY KEY (host))")
             db.commit()
     
-    def blacklist_host(self, host):
+    def blacklist_host(self, host, time):
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
             cursor.execute("INSERT INTO blacklist "
-                        "(host) "
-                        "VALUES (?)",
-                        (host))
+                        "(host, time) "
+                        "VALUES (?, ?)",
+                        (host, time))
             db.commit()
         return cursor.lastrowid
     

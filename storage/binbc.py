@@ -162,7 +162,7 @@ class BlockchainStorage(object):
         packed_trans = self.__trans_struct.pack(merkle_root.encode(), serialized_trans.encode())
         offset = hex_to_int(merkle_root) % 37 * self.__trans_struct.size
         if filename == None:
-            filename = self.__trans_filename.format("root")
+            filename = self.__trans_filename.format("root_0")
         if not os.path.exists("data/txs"):
             os.mkdir("data/txs")
         if not os.path.exists(filename):
@@ -182,7 +182,7 @@ class BlockchainStorage(object):
                         break
                     else:
                         for fn in filenames:
-                            if fn == "root.bin":
+                            if fn == "root_0.bin":
                                 prev_fn = fn
                                 continue
                             m = fn.split("_")[1][:-4]

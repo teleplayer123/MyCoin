@@ -38,7 +38,10 @@ def connect():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = ctx.wrap_socket(s, server_hostname="Cole")
         sock.connect(addr)
-        if network == config["network"]:
+        if caddr != peer:
+            sock.send("BADPEER:{}".format(peer).encode())
+            return json.dumps({"success": False}), 401
+        elif network == config["network"] and caddr == peer:
             sock.send("PEER:{}".format(peer).encode())
             res = sock.recv(4096)
             logger.info(" Response: {}".format(res.decode()))
@@ -46,8 +49,6 @@ def connect():
                 return json.dumps({"success": True}), 201 
             else:
                 return json.dumps({"success": False}), 401
-        if caddr != peer:
-            sock.send("BADPEER:{}".format(peer).encode())
     except socket.error as err:
         logger.error(" Socket Error: {}".format(err))
         if sock is not None:

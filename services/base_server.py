@@ -83,11 +83,14 @@ class BaseServer(object):
         csock.send("{}".format(flag).encode())
 
     def remove_and_blacklist(self, peer):
+        tm = localtime()
+        tm_str = "{}/{}/{} {}:{}:{}".format(tm.tm_mon, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec)
         if peer in [i[0] for i in self.peers.get_all_peers()]:
             self.peers.remove_peer(peer)
-        self.blacklist.blacklist_host(peer)
+            logger.info(" {} removed from peers".format(peer))
+        self.blacklist.blacklist_host(peer, tm_str)
         logger.info(" {} has been blacklisted".format(peer))
-        return True
+        return False
 
     def connect_peer(self, peer):
         all_peers = [i[0] for i in self.peers.get_all_peers()]
