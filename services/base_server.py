@@ -53,6 +53,8 @@ class BaseServer(object):
                     self.proc.start()
                 except socket.error as err:
                     logger.error("Socket Error: {}".format(err))
+                except KeyboardInterrupt:
+                    break
         except KeyboardInterrupt:
             if self.sock is not None:
                 self.sock.close()
