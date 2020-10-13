@@ -215,7 +215,7 @@ class BlockchainStorage(object):
         lb = self.get_last_block()
         merkle = lb.merkle_root
         offset = hex_to_int(merkle) % 37 * self.__trans_struct.size
-        with open(self.__trans_filename.format("root"), "rb+") as fh:
+        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
             fh.seek(offset)
             pdata = fh.read(self.__trans_struct.size)
             data = self.__trans_struct.unpack(pdata)
@@ -225,7 +225,7 @@ class BlockchainStorage(object):
 
     def get_trans_by_merkle(self, merkle_root):
         offset = hex_to_int(merkle_root) % 37 * self.__trans_struct.size
-        with open(self.__trans_filename.format("root"), "rb+") as fh:
+        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
             fh.seek(offset)
             pdata = fh.read(self.__trans_struct.size)
             data = self.__trans_struct.unpack(pdata)
