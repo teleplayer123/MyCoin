@@ -59,6 +59,6 @@ class Miner(object):
         reward = Transaction(self.reward_pub, self.reward_priv, self.reward_recip, 1)
         if self.blockchain.verify_transaction(reward.sender_address, reward.recipient_address, 
                                          reward.signature, reward.amount):
-            transactions.insert(0, reward)
+            transactions.append(reward)
         new_block = self.blockchain.new_block(index, prev_hash, transactions, proof)
         return new_block  

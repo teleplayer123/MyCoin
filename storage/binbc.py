@@ -33,7 +33,7 @@ class BlockchainStorage(object):
         self.__filename = config["user"]["serialized_blocks"]
         self.__trans_filename = config["user"]["trans_fname"]
         self.__block_struct = struct.Struct("<176s")
-        self.__trans_struct = struct.Struct("<64s{}s".format(4392*MAX_TRANS))
+        self.__trans_struct = struct.Struct("<64s{}s".format(4392*(MAX_TRANS+1)))
         if not os.path.exists(self.__filename):
             self.__mode = "wb+"
             self.genesis_block()
@@ -227,6 +227,13 @@ class BlockchainStorage(object):
         offset = hex_to_int(merkle_root) % 37 * self.__trans_struct.size
         with open(self.__trans_filename.format("root_0"), "rb+") as fh:
             fh.seek(offset)
+            pdata = fh.read(self.__trans_struct.size)
+            data = self.__trans_struct.unpack(pdata)
+        trans = self.deserialize_trans_header(data[1].decode())
+        return trans
+
+    def get_trans(self):
+        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
             pdata = fh.read(self.__trans_struct.size)
             data = self.__trans_struct.unpack(pdata)
         trans = self.deserialize_trans_header(data[1].decode())
