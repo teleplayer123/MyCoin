@@ -48,7 +48,7 @@ class App(widgets.QMainWindow):
         
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.setCentralWidget(AccountSetup())
+        self.setCentralWidget(CreateNewWallet())
 
         mainMenu = self.menuBar()
         file = mainMenu.addMenu("File")
@@ -160,10 +160,10 @@ class AccountSetup(widgets.QWidget):
         self.button.clicked.connect(self.on_click)
     
     def clear(self):
-        self.username.clear
-        self.password1.clear
-        self.password2.clear
-        self.secret.clear
+        self.username.setText("")
+        self.password1.setText("")
+        self.password2.setText("")
+        self.secret.setText("")
 
     def onActivated(self, text):
         self.question_label.setText(text)
@@ -180,6 +180,7 @@ class AccountSetup(widgets.QWidget):
         pool = PasswordPool()
         pool.store_data(username, question, key, data)
         widgets.QMessageBox.information(self, "msg", "Account Created", widgets.QMessageBox.Ok)
+        self.clear()
 
 
 class CreateNewWallet(widgets.QWidget):

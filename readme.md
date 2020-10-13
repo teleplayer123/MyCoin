@@ -11,18 +11,15 @@ How to Use
 Clone the MyCoin repository, and make sure that the most recent version of python
 is installed on your operating system. Install the dependencies in requirements.txt.
 I recommend using a virtual environment. Run 'pip install -r requirements.txt --upgrade' 
-to install updated dependencies.
+to install updated dependencies. This [requirements.txt](requirements.txt) file was made on
+a linux os, so if you are using windows, you may need to install the dependencies one
+by one... This fix is on my todo list.
 
-In order for this to work, new certificates might need to be created with: 
-
-    ~/MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt 
-    -days 365
+Another problem may accure with the validations of ssl certificates. Although I have tested
+this on different machines with success, if this is a problem, [here](#Fix_Certs) is a fix.
     
-    ~MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout client.key -out client.crt 
-    -days 365'
-    
-and then enter the information being prompted. Run [run_proxy.py](run_proxy.py)
-and [run_server.py](run_server.py) in seperate terminals or a multiplexer:
+Run [run_proxy.py](run_proxy.py) and [run_server.py](run_server.py) in seperate terminals or 
+a multiplexer:
 
 ![runservers](images/startservers.png)
 
@@ -41,7 +38,7 @@ then fill out the form and click the *new transaction* button at the bottom:
 Then enter your wallet password when prompted. The maximum number of transactions 
 per block is set at two just to see how mining works without having to make up
 several transactions. Once the max is reached, the miner starts. View the logs
-sent to the terminal running [run_server.py](run_server.py) to get am idea
+sent to the terminal running [run_server.py](run_server.py) to get an idea
 of what it looks like when [miner.py](miner.py) executes. 
 
 ![miner](images/mine1.png)
@@ -102,3 +99,19 @@ These two great repositories helped me learn a great deal about how blockchains 
 
 - [Electrum](https://github.com/spesmilo/electrum)
 - [CrankyCoin](https://github.com/cranklin/crankycoin)
+
+Fix_Certs
+----
+New certificates can be made to replace the ones in the [ca_certs](/ca_certs) directory 
+following the same naming scheme as shown below:
+
+    ~/MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt 
+    -days 365
+    
+    ~MyCoin/ca_certs$ openssl req -x509 -newkey rsa:4096 -keyout client.key -out client.crt 
+    -days 365'
+
+Continuing with fixing the ssl certificate problem, some source code needs to be changed to
+reflect the new common name entered while making the new certificates. Change the server_ hostname
+parameter in [proxy_server.py](services/proxy_server.py) line 39 to the common name you chose. That 
+should hopfully fix that issue. This issue is on my todo list. 
