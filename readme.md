@@ -56,7 +56,9 @@ exploring new things and trying to narrow down where my interests reside. Recent
 I started reanalyzing this project and utilizing some new concepts I have learned. By much
 trial and error, I made many changes such as: how data is stored and secured, using ssl to secure
 connections, using openssl for personally created certificates, a proxy server to mediate client
-requests, and cleaned up some code to be more object-oriented. 
+requests, and cleaned up some code to be more object-oriented. I intend to continue making patches and
+improvements on this project to support important security goals, such as: Confidentiality, Integrity,
+Availability, and Non-Repudiation. 
 
 Description
 ----
@@ -81,20 +83,20 @@ connection for better security.
 
 For the [proxy server](services/proxy_server.py), I used **Flask** to handle http connections to the 
 [client](services/client.py). This made parsing url endpoints much easier, but does not encrypt the data
-being sent. This is not a big deal since this data is meant to be shared on a decentralized peer to peer
-network. The proxy parses the client's request and sends forwards the data over a secure connection to 
+being sent. The proxy parses the client's request and sends forwards the data over a secure connection to 
 the [base server](services/base_server.py) which does some sanity checks. The base server handles private
 operations and validations, then sends a response to the proxy to be forwarded to the client. The base 
-server should only accept connections from the proxy which has should have the proper authentication. 
+server should only accept connections from the proxy which needs to have the proper authentication. 
 
 ## *Wallet*
 
 Users create a [wallet](wallet.py) which generates and stores public/private rsa keys in a file that only 
-allows access to that user. Before writing this private data to a permission restricted file, the user 
-is prompted for a pasword which is used to encrypt the user's rsa keys. The user's stored hashed password 
-is compared to the user's inputed password upon another prompt, which is then used to decrypt the rsa keys.
-The private key is used to sign a new transaction, and the public key is sent to the server to validate
-the authenticity of this transaction before broadcasting it to all nodes on the peer to peer network. 
+allows access to that user, supporting *Confidentiality*. Before writing this private data to a permission 
+restricted file, the user is prompted for a pasword which is used to encrypt the user's rsa keys, which 
+supports *Integrity*. Use of The user's stored hashed password is compared to the user's inputed password 
+upon another prompt, which is then used to decrypt the rsa keys. The private key is used to sign a new transaction, 
+and the public key is sent to the server to validate the authenticity of this transaction before broadcasting it to 
+all nodes on the peer to peer network. The use of signatures in this way supports *Non-Repudiation*. 
 
 Credits
 ----
