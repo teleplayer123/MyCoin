@@ -14,14 +14,17 @@ I recommend using a virtual environment. Run 'pip install -r requirements.txt --
 to install updated dependencies. This [requirements.txt](requirements.txt) file was made on
 a linux os, so if you are using windows, you may need to install the dependencies one
 by one... This fix is on my todo list.
-
-Another problem may accure with the validations of ssl certificates. Although I have tested
-this on different machines with success, if this is a problem, [here](#Fix_Certs) is a fix.
     
 Run [run_proxy.py](run_proxy.py) and [run_server.py](run_server.py) in seperate terminals or 
-a multiplexer:
+a multiplexer. Upon execution, the server programs will each ask for a password which is
+*"password"*, despite the fact you should never under any circumstances use that as an actual
+password. For the purpose of this example, this should not pose to much risk, as long as you
+are connecting to local nodes (aka loopback address's like 127.0.0.1/24).
 
 ![runservers](images/startservers.png)
+
+A problem may accure with the validations of ssl certificates. Although I have tested
+this on different machines with success, if this is a problem, [here](#Fix_Certs) is a fix.
 
 Then run [app.py](app.py) in another terminal, which provides a gui to 
 create a new wallet, and make transactions. 
