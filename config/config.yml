@@ -1,5 +1,5 @@
 user:
-    trans_fname: "data/txs/{}.bin"
+    trans_fname: "data/txs/transactions.bin"
     user_pool: "data/user_pool.sql"
     serialized_blocks: "data/blocks.bin"
 network:
@@ -21,7 +21,7 @@ network:
     max_transactions: 2
     reward_public: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDxoWDq7aRVnfCVuSV7Z0S8sGE59S1suBIT61X4rz/87tk5vJwfAaxwNiS2BrhXXjhglJ5ppH3b6vwCbN4c2h7cJnyHQwyU4asbQOGydqcUrLa+2FWLthzDwzfHqBZPz8q236SyXYeSaBltSY4j58+E5TMfkgnyS1ot+zXiUA3JfwIDAQAB
     reward_private: MIICWwIBAAKBgQDxoWDq7aRVnfCVuSV7Z0S8sGE59S1suBIT61X4rz/87tk5vJwfAaxwNiS2BrhXXjhglJ5ppH3b6vwCbN4c2h7cJnyHQwyU4asbQOGydqcUrLa+2FWLthzDwzfHqBZPz8q236SyXYeSaBltSY4j58+E5TMfkgnyS1ot+zXiUA3JfwIDAQABAoGAX+PDKngUd0WubDyFe2uIA7mbW/zIghSqV+1UuNQTeLTwz9DhxAxN+loCR5pzHXjutqVEGHiG2fdu+ydpHdoR1FaYayvyADQVsZbE22SY8gRdCLt/SAE+orfaoj8vqbroFoLVyrJl9sw4xscyqMTyFq1i66mVIuvd6v6DELYUH0ECQQDyIX2vUmIA/UCWEHuTSW4AmUCDM2/tdHFNZPFAoPZDU4qoATHzLvTeQKUMdPrMhTbpYmD7K7yNyT9CfpvfXwJbAkEA/3iMpQAVXfutWE7KmXXW5AiTblTdVXeKOgDh9jRMIwIQoLiNA0MvWkn861jJb3DGd/sFLeSfaApyf0BMki42rQJAB+6m8m5tfYDOc9wYYEvgia57mZC+0vWknJd4+9gKGUyMV1Kqsz/Pj9RoU88lRDv8/4pUiQX2yGJWazRAoQG4zwJANQWuGyjTRnhP1/4yantcqGNnRgTzEyQGWleIjnL4QmPRU6o6Ci1NjK3Cgo4g8LI1Xv2Ia6gBtbRFY0fTHJve2QJAPXSNHfFFKbVYHlr7R7EGlYCBS9t9e3W4rZjZT00QYRglNEFk5TJo2/291hifg+LqD+qSxS7lNlax5f3WTGIGeQ==
-    reward_recipient: "ipaddress"
+    reward_recipient: "reward"
     status_url: "http://{}:{}/status"
     connect_url: "http://{}:{}/connect"
 

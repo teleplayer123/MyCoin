@@ -1,3 +1,5 @@
+import hashlib
+
 def rev_hex(x):
     bfh = bytes.fromhex
     x = bfh(x)[::-1]
@@ -64,3 +66,17 @@ def deserialize_trans_header(t):
             "timestamp": hex_to_int(t[4384:4392])
         }
     return dtrans
+
+def calculate_merkle_root(transactions):
+    if len(transactions) < 1:
+        raise IndexError("zero transactions")
+    base = [t.txt_hash.encode() for t in transactions]
+    while len(base) > 1:
+        root = []
+        for i in range(0, len(base), 2):
+            if i == len(base) - 1:
+                root.append(hashlib.sha256(base[i] + base[i]).hexdigest())
+            else:
+                root.append(hashlib.sha256(base[i] + base[i+1]).hexdigest())
+        base = [t.encode() for t in root]
+    return base[0].decode()

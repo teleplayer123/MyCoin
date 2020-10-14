@@ -78,7 +78,7 @@ class App(widgets.QMainWindow):
     
 class TreeView(widgets.QWidget):
 
-    TXT_HASH, SENDER, AMOUNT, TIME = range(4)
+    RECIPIENT, SENDER, AMOUNT, TIME = range(4)
 
     def __init__(self):
         super().__init__()
@@ -94,9 +94,9 @@ class TreeView(widgets.QWidget):
         self.model = self.createModel(self)
         self.data_view.setModel(self.model)
 
-        trans = blockpool.get_trans_from_last_block()
+        trans = blockpool.get_all_trans()
         for t in trans:
-            self.set_data(t["txt_hash"], t["sender_address"], t["amount"], t["timestamp"])
+            self.set_data(t["recipient_address"], t["sender_address"], t["amount"], t["timestamp"])
         
 
         main_layout = widgets.QVBoxLayout() 
@@ -105,16 +105,16 @@ class TreeView(widgets.QWidget):
 
     def createModel(self, parent):
         model = gui.QStandardItemModel(0, 4, parent)
-        model.setHeaderData(self.TXT_HASH, core.Qt.Horizontal, "Text Hash")
+        model.setHeaderData(self.RECIPIENT, core.Qt.Horizontal, "Recipient")
         model.setHeaderData(self.SENDER, core.Qt.Horizontal, "Sender")
         model.setHeaderData(self.AMOUNT, core.Qt.Horizontal, "Amount")
         model.setHeaderData(self.TIME, core.Qt.Horizontal, "Time")
         return model
 
-    def set_data(self, txt_hash, sender, amount, time):
+    def set_data(self, recipient, sender, amount, time):
         model = self.model
         model.insertRow(0)
-        model.setData(model.index(0, self.TXT_HASH), txt_hash)
+        model.setData(model.index(0, self.RECIPIENT), recipient)
         model.setData(model.index(0, self.SENDER), sender)
         model.setData(model.index(0, self.AMOUNT), amount)
         model.setData(model.index(0, self.TIME), time)

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 from block import Block, BlockHeader
 from wallet import Transaction
-from tools.utils import int_to_hex, bfh, hex_to_int, rev_hex, int_from_str, str_from_hex
+from tools.utils import int_to_hex, bfh, hex_to_int, rev_hex, int_from_str, str_from_hex, calculate_merkle_root
 from config import config 
 
 GENESIS_BITS = config["network"]["genesis_bits"]
@@ -24,6 +24,10 @@ class TRANS_SIZE_ERROR(Exception):
     def __str__(self):
         return "Transactions size incorrect"
 
+class INTEGRITY_ERROR(Exception):
+    def __str__(self):
+        return "Integrity of transactions have been comprimised"
+
 
 class BlockchainStorage(object):
 
@@ -33,7 +37,7 @@ class BlockchainStorage(object):
         self.__filename = config["user"]["serialized_blocks"]
         self.__trans_filename = config["user"]["trans_fname"]
         self.__block_struct = struct.Struct("<176s")
-        self.__trans_struct = struct.Struct("<64s{}s".format(4392*(MAX_TRANS+1)))
+        self.__trans_struct = struct.Struct("<{}s".format(4392*(MAX_TRANS+1)))
         if not os.path.exists(self.__filename):
             self.__mode = "wb+"
             self.genesis_block()
@@ -138,9 +142,8 @@ class BlockchainStorage(object):
         else:
             logger.debug("invalid block: %s must be instance of Block", type(block))
             raise TypeError("Invalid block type")
-        strans = self.serialize_trans_header(transactions)
         if len(transactions) > 0:
-            self.write_transactions(strans, block_header["merkle_root"])
+            self.write_transactions(transactions, block)
         sblock = self.serialize_block_header(block_header)
         offset = index * self.__block_struct.size
         packed_block = self.__block_struct.pack(sblock.encode())
@@ -157,12 +160,16 @@ class BlockchainStorage(object):
         return status
 
 
-    def write_transactions(self, serialized_trans, merkle_root, filename=None):
-        branch = False
-        packed_trans = self.__trans_struct.pack(merkle_root.encode(), serialized_trans.encode())
-        offset = hex_to_int(merkle_root) % 37 * self.__trans_struct.size
-        if filename == None:
-            filename = self.__trans_filename.format("root_0")
+    def write_transactions(self, transactions, block):
+        index = block.index
+        merkle_root = block.block_header.merkle_root
+        verify_merkle = calculate_merkle_root(transactions)
+        if merkle_root != verify_merkle:
+            raise INTEGRITY_ERROR()
+        serialized_trans = self.serialize_trans_header(transactions)
+        packed_trans = self.__trans_struct.pack(serialized_trans.encode())
+        offset = index * self.__trans_struct.size
+        filename = self.__trans_filename
         if not os.path.exists("data/txs"):
             os.mkdir("data/txs")
         if not os.path.exists(filename):
@@ -175,68 +182,42 @@ class BlockchainStorage(object):
                 fh.seek(offset)
                 fh.write(packed_trans)
         else:
-            prev_fn = None
-            try:
-                for _, _, filenames in os.walk("data/txs", followlinks=True):
-                    if len(filenames) < 2:
-                        break
-                    else:
-                        for fn in filenames:
-                            if fn == "root_0.bin":
-                                prev_fn = fn
-                                continue
-                            m = fn.split("_")[1][:-4]
-                            if hex_to_int(m) > hex_to_int(merkle_root):
-                                filename = self.__trans_filename.format(prev_fn)
-                                break
-                            else:
-                                prev_fn = fn
-                if prev_fn is not None:
-                    filename = prev_fn
-            except os.error as err:
-                logger.error(" Error writing txs: {}".format(err))
-
             with open(filename, "rb+") as fh:
                 fh.seek(offset)
-                t = fh.read(self.__trans_struct.size)
-                logger.debug(" read trans: {}".format(t.decode()))
-                if len(t.decode()) == 0:
-                    fh.write(packed_trans)
-                else:
-                    branch = True
-            if branch == True:
-                fbranch = self.__trans_filename.format("root_{}".format(merkle_root))
-                logger.info(" Forking txs file: {}".format(fbranch))
-                self.write_transactions(serialized_trans, merkle_root, filename=fbranch)
-        return branch
+                fh.write(packed_trans)
 
-
+                 
     def get_trans_from_last_block(self):
         lb = self.get_last_block()
-        merkle = lb.merkle_root
-        offset = hex_to_int(merkle) % 37 * self.__trans_struct.size
-        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
+        index = lb.index
+        offset = index * self.__trans_struct.size
+        with open(self.__trans_filename, "rb+") as fh:
             fh.seek(offset)
             pdata = fh.read(self.__trans_struct.size)
             data = self.__trans_struct.unpack(pdata)
-        trans = self.deserialize_trans_header(data[1].decode())
-        return trans
+        trans = self.deserialize_trans_header(data[0].decode())
+        return trans[:-1]
         
+    def get_all_trans(self):
+        nblocks = self.get_last_block().index
+        with open(self.__trans_filename, "rb") as fh:
+            for i in range(1, nblocks+1):
+                offset = i * self.__trans_struct.size
+                fh.seek(offset)
+                pdata = fh.read(self.__trans_struct.size)
+                data = self.__trans_struct.unpack(pdata)
+                trans = self.deserialize_trans_header(data[0].decode())
+                for t in trans:
+                    yield t
 
-    def get_trans_by_merkle(self, merkle_root):
-        offset = hex_to_int(merkle_root) % 37 * self.__trans_struct.size
-        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
+
+    def get_trans_by_index(self, index):
+        offset = index * self.__trans_struct.size
+        with open(self.__trans_filename, "rb+") as fh:
             fh.seek(offset)
             pdata = fh.read(self.__trans_struct.size)
             data = self.__trans_struct.unpack(pdata)
-        trans = self.deserialize_trans_header(data[1].decode())
-        return trans
-
-    def get_trans(self):
-        with open(self.__trans_filename.format("root_0"), "rb+") as fh:
-            pdata = fh.read(self.__trans_struct.size)
-            data = self.__trans_struct.unpack(pdata)
-        trans = self.deserialize_trans_header(data[1].decode())
+        trans = self.deserialize_trans_header(data[0].decode())
         return trans
 
 
