@@ -19,7 +19,7 @@ class BlockChain(object):
         bits = self._blockchain.get_last_block().bits
         difficulty = 1
         if index % 10 == 0:
-            target = self.calculate_target((index / 10) - 1, bits)
+            target = self.calculate_target(int((index / 10)) - 1, bits)
             bits = bits_from_target(target)
             difficulty = self.difficulty_from_bits(bits)
             bits = int_to_hex(int(bits), 4)
@@ -44,7 +44,7 @@ class BlockChain(object):
         max_target = config["network"]["max_target"]
         target = target_from_bits(bits)
         time_span = max(time_span, target_time_span // 4)
-        time_span - min(time_span, target_time_span * 4)
+        time_span = min(time_span, target_time_span * 4)
         new_target = max(max_target, (target * time_span) // target_time_span)
         new_target = target_from_bits(bits_from_target(new_target))
         return new_target

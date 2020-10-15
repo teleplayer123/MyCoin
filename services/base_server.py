@@ -12,6 +12,7 @@ from storage.peers import Peers
 from storage.binbc import BlockchainStorage
 from storage.mempool import Mempool
 from tools.utils import deserialize_trans_header
+from tools.logger import Logger
 from wallet import Transaction
 from config import config
 
@@ -20,8 +21,8 @@ MAX_TRANSACTIONS = config["network"]["max_transactions"]
 HOST = config["network"]["shost"]
 PORT = config["network"]["sport"]
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+l = Logger("main", "base_server.log")
+logger = l.get_logger()
 
 class BaseServer(object):
 

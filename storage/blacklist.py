@@ -22,7 +22,7 @@ class BlackList(object):
     def blacklist_host(self, host, time):
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
-            cursor.execute("INSERT INTO blacklist "
+            cursor.execute("INSERT OR IGNORE INTO blacklist "
                         "(host, time) "
                         "VALUES (?, ?)",
                         (host, time))
