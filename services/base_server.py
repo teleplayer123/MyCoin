@@ -76,28 +76,29 @@ class BaseServer(object):
                 break
         if data.split(":")[0] == "PEER":
             flag = self.connect_peer(data.split(":")[1])
-        if data.split(":")[0] == "BADPEER":
-            flag = self.remove_and_blacklist(data.split(":")[1])
+        if data.split(":")[0] == "BADPEERS":
+            flag = self.remove_and_blacklist(data.split(":")[1], data.split(":")[2])
         if data.split(":")[0] == "TYPE" and data.split(":")[1] == "unconfirmed":
             host = data.split(":")[3]
             trans = deserialize_trans_header(data.split(":")[5])
             flag = self.add_unconfirmed_trans(host, trans)
         csock.send("{}".format(flag).encode())
 
-    def remove_and_blacklist(self, peer):
+    def remove_and_blacklist(self, *peers):
         tm = localtime()
         tm_str = "{}/{}/{} {}:{}:{}".format(tm.tm_mon, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec)
-        if peer in [i[0] for i in self.peers.get_all_peers()]:
-            self.peers.remove_peer(peer)
-            logger.info(" {} removed from peers".format(peer))
-        self.blacklist.blacklist_host(peer, tm_str)
-        logger.info(" {} has been blacklisted".format(peer))
+        for peer in peers:
+            if peer in [i[0] for i in self.peers.get_all_peers()]:
+                self.peers.remove_peer(peer)
+                logger.warning(" {} removed from peers".format(peer))
+            self.blacklist.blacklist_host(peer, tm_str)
+            logger.warning(" {} has been blacklisted".format(peer))
         return False
 
     def connect_peer(self, peer):
         all_peers = [i[0] for i in self.peers.get_all_peers()]
         if peer in self.blacklist.get_blacklisted():
-            logger.debug(" Blacklisted host: {} connection attempt at {}".format(peer, localtime(time())))
+            logger.warning(" Blacklisted host: {} connection attempt at {}".format(peer, localtime(time())))
             return False
         elif peer in all_peers:
             if self.peers.get_peer_downtime(peer) > MAX_DOWNTIME:
@@ -113,7 +114,7 @@ class BaseServer(object):
 
     def add_unconfirmed_trans(self, host, trans):
         if host not in [p[0] for p in self.peers.get_all_peers()]:
-            logger.info(" POST UTX error, {} not in peers".format(host))
+            logger.warning(" POST UTX error, {} not in peers".format(host))
             return False
         trans_from_dic = Transaction.from_dict(trans)
         valid = self.blockchain.verify_transaction(trans["sender_address"], trans["recipient_address"], 
@@ -130,5 +131,5 @@ class BaseServer(object):
                     sleep(5)
             return True
         else:
-            logger.debug(" Invalid Transaction: {}".format(trans_from_dic.txt_hash))
+            logger.warning(" Invalid Transaction: {}".format(trans_from_dic.txt_hash))
             return False

@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 import requests
 import json
+import logging
 import ssl
 import socket
 import struct
 
 
 from config import config
-from tools.logger import Logger
 from tools.validation import allow_peer, blocked_host
 
 
@@ -15,8 +15,8 @@ app = Flask(__name__)
 host = config["network"]["host"]
 port = config["network"]["port"]
 
-l = Logger("proxy", "proxy_server.log")
-logger = l.get_logger()
+logging.basicConfig(filename="logs/proxy_server.log", level=logging.DEBUG)
+logger = logging.getLogger("proxy")
 
 ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile="ca_certs/server.crt")
 ctx.load_cert_chain("ca_certs/client.crt", "ca_certs/client.key")
@@ -47,8 +47,9 @@ def connect():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = ctx.wrap_socket(s, server_hostname="Cole")
         sock.connect(addr)
+        logger.info(" Connecting to {}".format(addr))
         if caddr != peer:
-            sock.send("BADPEER:{}".format(peer).encode())
+            sock.send("BADPEERS:{}:{}".format(peer, caddr).encode())
             return json.dumps({"success": False}), 401
         elif network == config["network"] and caddr == peer:
             sock.send("PEER:{}".format(peer).encode())
