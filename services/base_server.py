@@ -1,6 +1,5 @@
 import socket
 import ssl
-import logging
 import json
 import multiprocessing as mp
 from time import localtime, time, sleep

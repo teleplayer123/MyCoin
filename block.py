@@ -16,7 +16,7 @@ class BlockHeader(object):
         self.index = index
         self.previous_hash = previous_hash
         self.bits = bits
-        self.difficulty = difficulty
+        self.difficulty = int(difficulty)
         self.merkle_root = merkle_root 
         self.timestamp = int(time()) if timestamp is None else int(timestamp)
         self.proof = int(proof)
@@ -25,12 +25,12 @@ class BlockHeader(object):
     def to_hashable(self):
         return ("{0:0>10x}".format(self.index) +
         f"{self.previous_hash}" +
-        f"{self.bits}" +
-        "{0:0>8x}".format(int(self.difficulty)) +
+        "{0:08x}".format(self.bits) +
+        "{0:08x}".format(int(self.difficulty)) +
         f"{self.merkle_root}" +
-        "{0:0>8x}".format(self.timestamp) +
-        "{0:0>8x}".format(self.proof) +
-        "{0:0>8x}".format(self.version))
+        "{0:08x}".format(self.timestamp) +
+        "{0:08x}".format(self.proof) +
+        "{0:08x}".format(self.version))
 
     @property
     def hash(self):

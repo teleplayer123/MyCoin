@@ -1,21 +1,21 @@
 from flask import Flask, request, jsonify
 import requests
 import json
-import logging
 import ssl
 import socket
 import struct
 
 
 from config import config
+from tools.logger import Logger
 
 
 app = Flask(__name__)
 host = config["network"]["host"]
 port = config["network"]["port"]
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+l = Logger("proxy", "proxy_server.log")
+logger = l.get_logger()
 
 ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile="ca_certs/server.crt")
 ctx.load_cert_chain("ca_certs/client.crt", "ca_certs/client.key")

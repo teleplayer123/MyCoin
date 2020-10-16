@@ -11,8 +11,8 @@ class Peers(object):
         self.filename = FILENAME if filename is None else filename
         create = not os.path.exists(self.filename)
         if create:
-            if not os.path.exists("./data"):
-                os.mkdir("./data")
+            if not os.path.exists("data"):
+                os.mkdir("data")
             self.initDB()
 
     def initDB(self):

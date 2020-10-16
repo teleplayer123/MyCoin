@@ -4,8 +4,8 @@ import os
 class Logger:
 
     def __init__(self, logger_name, filename):
-        if not os.path.exists("/logs"):
-            os.mkdir("/logs")
+        if not os.path.exists("logs"):
+            os.mkdir("logs")
         fh = logging.FileHandler(os.path.join("logs", filename))
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         fh.setFormatter(formatter)

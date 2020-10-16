@@ -9,7 +9,7 @@ from wallet import Transaction
 from config import config
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("main")
 
 class Miner(object):
 
@@ -19,9 +19,6 @@ class Miner(object):
     reward_recip = config["network"]["reward_recipient"]
 
     def __init__(self):
-        mp.log_to_stderr()
-        mp_logger = mp.get_logger()
-        mp_logger.setLevel(logging.DEBUG)
         self.blockchain = BlockChain()
         self.block_pool = BlockchainStorage()
         self.memp = Mempool()
@@ -37,11 +34,10 @@ class Miner(object):
             status, block = self.mine_block()
             if not block:
                 logger.info("mining shutting down")
-                print("miner stopping")
                 break
             if status == True:
-                logger.info("block {} found at index {} with proof {}".format(block.to_dict(), 
-                                                    block.index, block.block_header.proof))
+                logger.info("New block {} at index {}".format(block.to_dict(), 
+                                                    block.index))
                 self.memp.remove_unconfirmed_transactions()   
         if self.mining_process.is_alive():
             self.mining_process.close()

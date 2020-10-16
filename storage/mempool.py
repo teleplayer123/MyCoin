@@ -13,7 +13,7 @@ class Mempool(object):
         self.filename = self.mempool_db
         try:
             if not os.path.exists(os.path.dirname("data")):
-                os.mkdir("data", )
+                os.mkdir("data")
         except os.error:
             pass
         create = not os.path.exists(self.filename)

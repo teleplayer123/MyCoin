@@ -9,7 +9,7 @@ from time import time
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("main")
 
 from block import Block, BlockHeader
 from wallet import Transaction
@@ -48,7 +48,7 @@ class BlockchainStorage(object):
         block = Block(
             0,
             "0"*64,
-            hex(GENESIS_BITS)[2:],
+            int(GENESIS_BITS),
             1,
             [],
             "0"*64,
@@ -105,7 +105,7 @@ class BlockchainStorage(object):
         block = (
             int_to_hex(header_dict["index"], 4) +
             rev_hex(header_dict["previous_hash"]) + 
-            rev_hex(header_dict["bits"]) +
+            int_to_hex(header_dict["bits"], 4) +
             int_to_hex(header_dict["difficulty"], 4) +
             rev_hex(header_dict["merkle_root"]) +
             int_to_hex(header_dict["timestamp"], 4) +
@@ -117,7 +117,7 @@ class BlockchainStorage(object):
     def deserialize_block_header(self, sheader):
         index = hex_to_int(sheader[:8])
         prev_hash = rev_hex(sheader[8:72])
-        bits = rev_hex(sheader[72:80])
+        bits = hex_to_int(sheader[72:80])
         difficulty = hex_to_int(sheader[80:88])
         merkle_root = rev_hex(sheader[88:152])
         timestamp = hex_to_int(sheader[152:160])

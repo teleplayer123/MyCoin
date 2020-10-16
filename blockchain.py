@@ -22,7 +22,6 @@ class BlockChain(object):
             target = self.calculate_target(int((index / 10)) - 1, bits)
             bits = bits_from_target(target)
             difficulty = self.difficulty_from_bits(bits)
-            bits = int_to_hex(int(bits), 4)
         block = Block(
             index,
             previous_hash,
@@ -35,8 +34,7 @@ class BlockChain(object):
         status = self._blockchain.add_block(block)
         return status, block
 
-    def calculate_target(self, index, rev_bits):
-        bits = hex_to_int(rev_bits)
+    def calculate_target(self, index, bits):
         first = self._blockchain.get_block_by_index(index * 10)
         last = self._blockchain.get_block_by_index(index * 10 + 9)
         time_span = last.timestamp - first.timestamp
