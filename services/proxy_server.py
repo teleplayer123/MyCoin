@@ -8,6 +8,7 @@ import struct
 
 from config import config
 from tools.logger import Logger
+from tools.validation import allow_peer, blocked_host
 
 
 app = Flask(__name__)
@@ -24,13 +25,19 @@ ctx.load_cert_chain("ca_certs/client.crt", "ca_certs/client.key")
 
 @app.route("/status", methods=["GET"])
 def check_status():
-    return json.dumps(config["network"]), 200
+    host = request.host.split(":")[0]
+    if allow_peer(host):
+        return json.dumps(config["network"]), 200
+    else:
+        return json.dumps({"message": "ACCESS DENIED"}), 400
 
 
 @app.route("/connect", methods=["POST"])
 def connect():
     addr = (config["network"]["shost"], config["network"]["sport"])
     caddr = request.host.split(":")[0]
+    if blocked_host(caddr):
+        return json.dumps({"message": "ACCESS DENIED"}), 401
     body = request.get_json()
     peer = body["host"]
     network = body["network"]
