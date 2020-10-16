@@ -30,6 +30,7 @@ def check_status():
         return json.dumps(config["network"]), 200
     else:
         return json.dumps({"message": "ACCESS DENIED"}), 400
+        logger.warning(" {} Denied Access while requesting network status".format(host))
 
 
 @app.route("/connect", methods=["POST"])
@@ -38,6 +39,7 @@ def connect():
     caddr = request.host.split(":")[0]
     if blocked_host(caddr):
         return json.dumps({"message": "ACCESS DENIED"}), 401
+        logger.warning(" {} Denied Access while trying to connect to proxy".format(caddr))
     body = request.get_json()
     peer = body["host"]
     network = body["network"]
