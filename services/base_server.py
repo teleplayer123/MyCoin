@@ -76,8 +76,8 @@ class BaseServer(object):
                 break
         if data.split(":")[0] == "PEER":
             flag = self.connect_peer(data.split(":")[1])
-        if data.split(":")[0] == "BADPEERS":
-            flag = self.remove_and_blacklist(data.split(":")[1], data.split(":")[2])
+        if data.split(":")[0] == "BADPEER":
+            flag = self.remove_and_blacklist(data.split(":")[1])
         if data.split(":")[0] == "TYPE" and data.split(":")[1] == "unconfirmed":
             host = data.split(":")[3]
             trans = deserialize_trans_header(data.split(":")[5])

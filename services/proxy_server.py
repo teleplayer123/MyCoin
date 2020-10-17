@@ -49,7 +49,7 @@ def connect():
         sock.connect(addr)
         logger.info(" Connecting to {}".format(addr))
         if caddr != peer:
-            sock.send("BADPEERS:{}:{}".format(peer, caddr).encode())
+            sock.send("BADPEER:{}".format(peer).encode())
             return json.dumps({"success": False}), 401
         elif network == config["network"] and caddr == peer:
             sock.send("PEER:{}".format(peer).encode())
