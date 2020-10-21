@@ -72,7 +72,7 @@ attemps to create the data file with permisions allowing access where it is not 
 done by creating a file descriptor, implicitly setting permissions, and not allowing a file to be
 recreated if it already exists. 
 
-### *SSL Connection*
+### *SSL/TLS Connection*
 
 First personally generated [certificates](ca_certs/) must be generated in order to authenticate a clients 
 connection. I did this with the **OpenSSL** cli on linux. From there, python provides a **ssl** module to 
