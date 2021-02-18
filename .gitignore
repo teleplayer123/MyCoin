@@ -5,3 +5,4 @@ __pycache__/*
 data/*
 test.py
 logs/*
+services/proxy_base.py

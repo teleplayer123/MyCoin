@@ -3,6 +3,7 @@ import ssl
 import json
 import multiprocessing as mp
 from time import localtime, time, sleep
+from datetime import date
 
 from blockchain import BlockChain
 from miner import Miner
@@ -43,16 +44,42 @@ class BaseServer(object):
         logger.info(" Listening on {}:{}".format(HOST, PORT))
         
     def plisten(self):
+        trys = 0
         try:
             while True:
                 try:
                     ssock, caddr = self.sock.accept()
-                    csock = self.ctx.wrap_socket(ssock, server_side=True)
-                    logger.info(" accpting connection from {}".format(caddr))
-                    self.proc = mp.Process(target=self.handler(csock))
-                    self.proc.start()
+                    if caddr[0] in self.blacklist.get_blacklisted():
+                        logger.warning(" Blacklisted host {} attempt to connect at {}".format(caddr[0], self.get_time()))
+                        ssock.close()
+                        continue
+                    elif caddr[0] in [p for p in self.peers.get_all_peers()] and self.peers.get_peer_downtime(caddr[0]) > MAX_DOWNTIME:
+                        self.remove_and_blacklist(caddr[0])
+                        ssock.close()
+                        continue
+                    elif trys > 2:
+                        tm_str = self.get_time()
+                        flag = self.blacklist.blacklist_host(caddr[0], tm_str)
+                        if flag == False:
+                            logger.warning(" Cannot blacklist local host")
+                        else:
+                            logger.warning(" {} has been blacklisted at {} -- trys: {}".format(caddr[0], tm_str, trys))
+                        ssock.close()
+                        trys = 0
+                        continue
+                    else:
+                        csock = self.ctx.wrap_socket(ssock, server_side=True)
+                        logger.info(" accpting connection from {}".format(caddr))
+                        self.proc = mp.Process(target=self.handler(csock))
+                        self.proc.start()
                 except socket.error as err:
                     logger.error("Socket Error: {}".format(err))
+                    trys += 1
+                    if self.peers.get_peer(caddr[0]) != None and caddr[0] != "127.0.0.1":
+                        self.peers.record_downtime(caddr[0])
+                        logger.warning(" {} downtime: {}".format(caddr[0], self.peers.get_peer_downtime(caddr[0])))
+                    else:
+                        logger.warning(" Host: {} Failed attempts: {}".format(caddr[0], trys))
                 except KeyboardInterrupt:
                     break
         except KeyboardInterrupt:
@@ -65,7 +92,6 @@ class BaseServer(object):
             if self.proc is not None:
                 self.proc.terminate()
                 logger.debug(" Closing process")
-            
 
     def handler(self, csock):
         data = ""
@@ -76,23 +102,32 @@ class BaseServer(object):
                 break
         if data.split(":")[0] == "PEER":
             flag = self.connect_peer(data.split(":")[1])
-        if data.split(":")[0] == "BADPEER":
+        elif data.split(":")[0] == "BADPEER":
             flag = self.remove_and_blacklist(data.split(":")[1])
-        if data.split(":")[0] == "TYPE" and data.split(":")[1] == "unconfirmed":
+        elif data.split(":")[0] == "TYPE" and data.split(":")[1] == "unconfirmed":
             host = data.split(":")[3]
             trans = deserialize_trans_header(data.split(":")[5])
             flag = self.add_unconfirmed_trans(host, trans)
+        else:
+            flag = False
         csock.send("{}".format(flag).encode())
 
+    def get_time(self):
+        d = date.today()
+        t = localtime(time())
+        return "{} {}:{}:{}".format(d, t.tm_hour, t.tm_min, t.tm_sec)
+
     def remove_and_blacklist(self, *peers):
-        tm = localtime()
-        tm_str = "{}/{}/{} {}:{}:{}".format(tm.tm_mon, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec)
+        tm_str = self.get_time()
         for peer in peers:
             if peer in [i[0] for i in self.peers.get_all_peers()]:
                 self.peers.remove_peer(peer)
                 logger.warning(" {} removed from peers".format(peer))
-            self.blacklist.blacklist_host(peer, tm_str)
-            logger.warning(" {} has been blacklisted".format(peer))
+            flag = self.blacklist.blacklist_host(peer, tm_str)
+            if flag == False:
+                logger.warning(" Cannot blacklist localhost")
+            else:
+                logger.warning(" {} has been blacklisted".format(peer))
         return False
 
     def connect_peer(self, peer):

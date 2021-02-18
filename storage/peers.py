@@ -42,7 +42,10 @@ class Peers(object):
     def get_peer(self, host):
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
-            cursor.execute("SELECT host FROM peers WHERE host='{}'".format(host))
+            try:
+                cursor.execute("SELECT host FROM peers WHERE host='{}'".format(host))
+            except sqlite3.Error:
+                return None
             return cursor.fetchone()
 
     def get_all_peers(self):
@@ -69,5 +72,5 @@ class Peers(object):
     def remove_peer(self, host):
         with sqlite3.connect(self.filename) as db:
             cursor = db.cursor()
-            cursor.execute("DELETE * FROM peers WHERE host = {}".format(host))
+            cursor.execute("DELETE FROM peers WHERE host = '{}'".format(host))
             return 
