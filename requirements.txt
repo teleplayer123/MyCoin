@@ -16,7 +16,7 @@ pycryptodome==3.9.0
 pylint==2.3.1
 PyQt5==5.13.1
 PyQt5-sip==4.19.19
-PyYAML==5.1.2
+PyYAML==5.4
 pyzmq==18.1.0
 requests==2.22.0
 six==1.12.0
